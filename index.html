@@ -69,7 +69,9 @@
       font-weight: bold;
       margin-bottom: 15px;
     }
-    .btn:hover { opacity: 0.9; }
+    .btn:hover {
+      opacity: 0.9;
+    }
     .comments {
       margin-top: 10px;
       border-top: 1px solid #eee;
@@ -110,7 +112,9 @@
       color: white;
       cursor: pointer;
     }
-    .comment-input button:hover { background: #219150; }
+    .comment-input button:hover {
+      background: #219150;
+    }
   </style>
 </head>
 <body>
@@ -130,7 +134,6 @@
   </div>
 
   <script>
-    // ไฟล์ตัวอย่างแต่ละวิชา
     const fileData = {
       math: [
         { name: "สมการพื้นฐาน.pdf", url: "files/math-basic.pdf" },
@@ -146,26 +149,39 @@
       ]
     };
 
-  
+    const subjectSelect = document.getElementById("subject");
+    const filesDiv = document.getElementById("files");
 
-    function addComment(key) {
-      const input = document.getElementById(`input-${key}`);
-      const list = document.getElementById(`comments-${key}`);
+    subjectSelect.addEventListener("change", () => {
+      const subject = subjectSelect.value;
+      filesDiv.innerHTML = "";
+
+      if (fileData[subject]) {
+        fileData[subject].forEach((file, index) => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <h3>${file.name}</h3>
+            <a class="btn" href="${file.url}" download>⬇ ดาวน์โหลด</a>
+           
+            </div>
+          `;
+          filesDiv.appendChild(card);
+        });
+      }
+    });
+
+    function addComment(subject, index) {
+      const input = document.getElementById(`input-${subject}-${index}`);
+      const list = document.getElementById(`comments-${subject}-${index}`);
       if (input.value.trim() !== "") {
         const div = document.createElement("div");
         div.className = "comment";
         div.textContent = input.value;
         list.appendChild(div);
-
-        // อัปเดต LocalStorage
-        if (!commentsData[key]) commentsData[key] = [];
-        commentsData[key].push(input.value);
-        saveComments(commentsData);
-
         input.value = "";
       }
     }
   </script>
 </body>
 </html>
-
