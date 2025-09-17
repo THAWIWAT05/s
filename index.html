@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>📘 ระบบดาวน์โหลดไฟล์การเรียน</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      margin: 0;
+      background: #f4f6f9;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .login-btn {
+      background: #fff;
+      color: #2575fc;
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .login-btn:hover {
+      background: #f0f0f0;
+    }
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+    .select-box {
+      margin-bottom: 30px;
+    }
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card h3 {
+      margin: 0 0 15px;
+      font-size: 18px;
+      color: #2c3e50;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 15px;
+      background: linear-gradient(135deg, #3498db, #9b59b6);
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      text-align: center;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    .comments {
+      margin-top: 10px;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+    .comments h4 {
+      margin: 5px 0 10px;
+      font-size: 14px;
+      color: #555;
+    }
+    .comment-list {
+      max-height: 120px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+    .comment {
+      background: #f0f2f5;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .comment-input {
+      display: flex;
+      gap: 10px;
+    }
+    .comment-input input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .comment-input button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #27ae60;
+      color: white;
+      cursor: pointer;
+    }
+    .comment-input button:hover {
+      background: #219150;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    📘 ระบบดาวน์โหลดไฟล์การเรียน
+    <a href="admin.html" class="login-btn">เข้าสู่ระบบ</a>
+  </header>
+
+  <div class="container">
+    <div class="select-box">
+      <label for="subject">เลือกวิชา:</label>
+      <select id="subject">
+        <option value="">-- กรุณาเลือกวิชา --</option>
+        <option value="math">📐 แคล</option>
+        <option value="physics">🔬 ฟิสิกส์</option>
+        <option value="chemistry">⚗️ เคมี</option>
+        <option value="drafting">📝 เขียนแบบ</option>
+        <option value="drafting">📝 ไฟล์รวม</option>
+      </select>
+    </div>
+
+    <div id="files" class="grid"></div>
+  </div>
+
+  <script>
+    const fileData = {
+      math: [
+        { name: "สมการพื้นฐาน.pdf", url: "files/math-basic.pdf" },
+        { name: "โจทย์คณิต ม.6.docx", url: "files/math-exercise.docx" }
+      ],
+      physics: [
+        { name: "กลศาสตร์.pdf", url: "files/mechanics.pdf" },
+        { name: "ไฟฟ้าและแม่เหล็ก.zip", url: "files/electricity.zip" }
+      ],
+      chemistry: [
+        { name: "เคมีอินทรีย์.pdf", url: "files/organic.pdf" },
+        { name: "สรุปเคมี.docx", url: "files/chem-summary.docx" }
+      ]
+    };
+
+    // โหลดคอมเมนต์จาก LocalStorage
+    function loadComments() {
+      return JSON.parse(localStorage.getItem("comments")) || {};
+    }
+
+    // บันทึกคอมเมนต์ลง LocalStorage
+    function saveComments(comments) {
+      localStorage.setItem("comments", JSON.stringify(comments));
+    }
+
+    let commentsData = loadComments();
+
+    const subjectSelect = document.getElementById("subject");
+    const filesDiv = document.getElementById("files");
+
+    subjectSelect.addEventListener("change", () => {
+      const subject = subjectSelect.value;
+      filesDiv.innerHTML = "";
+
+      if (fileData[subject]) {
+        fileData[subject].forEach((file, index) => {
+          const key = `${subject}-${index}`;
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <h3>${file.name}</h3>
+            <a class="btn" href="${file.url}" download>⬇ ดาวน์โหลด</a>
+            <div class="comments">
+              <h4>💬 ความคิดเห็น</h4>
+              <div class="comment-list" id="comments-${key}"></div>
+              <div class="comment-input">
+                <input type="text" id="input-${key}" placeholder="พิมพ์ข้อความ...">
+                <button onclick="addComment('${key}')">ส่ง</button>
+              </div>
+            </div>
+          `;
+          filesDiv.appendChild(card);
+
+          // แสดงคอมเมนต์ที่เคยบันทึกไว้
+          const list = document.getElementById(`comments-${key}`);
+          (commentsData[key] || []).forEach(text => {
+            const div = document.createElement("div");
+            div.className = "comment";
+            div.textContent = text;
+            list.appendChild(div);
+          });
+        });
+      }
+    });
+
+    function addComment(key) {
+      const input = document.getElementById(`input-${key}`);
+      const list = document.getElementById(`comments-${key}`);
+      if (input.value.trim() !== "") {
+        const div = document.createElement("div");
+        div.className = "comment";
+        div.textContent = input.value;
+        list.appendChild(div);
+
+        // อัปเดต LocalStorage
+        if (!commentsData[key]) commentsData[key] = [];
+        commentsData[key].push(input.value);
+        saveComments(commentsData);
+
+        input.value = "";
+      }
+    }
+  </script>
+</body>
+</html>
