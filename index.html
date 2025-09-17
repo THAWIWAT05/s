@@ -146,52 +146,7 @@
       ]
     };
 
-    // โหลด/บันทึกคอมเมนต์จาก LocalStorage
-    function loadComments() {
-      return JSON.parse(localStorage.getItem("comments")) || {};
-    }
-    function saveComments(comments) {
-      localStorage.setItem("comments", JSON.stringify(comments));
-    }
-
-    let commentsData = loadComments();
-    const subjectSelect = document.getElementById("subject");
-    const filesDiv = document.getElementById("files");
-
-    subjectSelect.addEventListener("change", () => {
-      const subject = subjectSelect.value;
-      filesDiv.innerHTML = "";
-
-      if (fileData[subject]) {
-        fileData[subject].forEach((file, index) => {
-          const key = `${subject}-${index}`;
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <h3>${file.name}</h3>
-            <a class="btn" href="${file.url}" download>⬇ ดาวน์โหลด</a>
-            <div class="comments">
-              <h4>💬 ความคิดเห็น</h4>
-              <div class="comment-list" id="comments-${key}"></div>
-              <div class="comment-input">
-                <input type="text" id="input-${key}" placeholder="พิมพ์ข้อความ...">
-                <button onclick="addComment('${key}')">ส่ง</button>
-              </div>
-            </div>
-          `;
-          filesDiv.appendChild(card);
-
-          // แสดงคอมเมนต์เก่า
-          const list = document.getElementById(`comments-${key}`);
-          (commentsData[key] || []).forEach(text => {
-            const div = document.createElement("div");
-            div.className = "comment";
-            div.textContent = text;
-            list.appendChild(div);
-          });
-        });
-      }
-    });
+  
 
     function addComment(key) {
       const input = document.getElementById(`input-${key}`);
@@ -213,3 +168,4 @@
   </script>
 </body>
 </html>
+
