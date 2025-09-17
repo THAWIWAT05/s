@@ -4,11 +4,41 @@
   <meta charset="UTF-8">
   <title>เข้าสู่ระบบแอดมิน</title>
   <style>
-    body { font-family: "Segoe UI", Tahoma, sans-serif; background: #f4f6f9; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    .login-box { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 300px; text-align: center; }
-    input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; }
-    button { width: 100%; padding: 10px; background: #2575fc; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
-    button:hover { background: #1a5cd8; }
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      width: 300px;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #2575fc;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1a5cd8;
+    }
   </style>
 </head>
 <body>
@@ -22,9 +52,8 @@
   <script>
     function login() {
       const password = document.getElementById("password").value;
-      if(password === "admin123") {  // 🔐 รหัสผ่าน
-        localStorage.setItem("isAdmin", "true"); // บันทึกสถานะล็อกอิน
-        window.location.href = "admin.html";    // ไปหน้าแอดมิน
+      if (password === "admin123") { // 🔐 เปลี่ยนรหัสตรงนี้ได้
+        window.location.href = "admin.html";
       } else {
         document.getElementById("error").textContent = "รหัสผ่านไม่ถูกต้อง!";
       }
