@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>📘 ระบบจัดการแอดมิน</title>
+  <style>
+    body { font-family: "Segoe UI", Tahoma, sans-serif; margin: 0; background: #f4f6f9; color: #333; }
+    header {
+      background: linear-gradient(135deg, #ff512f, #dd2476);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .logout-btn {
+      background: #fff; color: #dd2476; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 14px;
+    }
+    .logout-btn:hover { background: #f0f0f0; }
+    .container { max-width: 1000px; margin: auto; padding: 20px; }
+    .section { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h2 { margin-top: 0; color: #c0392b; }
+    input, select { padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin: 5px 0; width: 100%; }
+    button { background: #27ae60; color: #fff; padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; margin-top: 8px; }
+    button:hover { background: #219150; }
+    .comment-box { background: #f9f9f9; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+    .reply { margin-left: 15px; background: #eef2f9; border-left: 3px solid #3498db; padding: 5px 10px; border-radius: 6px; }
+    .admin-reply { font-weight: bold; color: #d35400; }
+  </style>
+</head>
+<body>
+  <header>
+    📘 ระบบจัดการแอดมิน
+    <a href="index.html" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
+  </header>
+
+  <div class="container">
+    <div class="section">
+      <h2>➕ เพิ่มวิชาใหม่</h2>
+      <input type="text" id="newSubject" placeholder="เช่น ชีววิทยา">
+      <button onclick="addSubject()">เพิ่มวิชา</button>
+    </div>
+
+    <div class="section">
+      <h2>📂 เพิ่มไฟล์เข้าในวิชา</h2>
+      <select id="subjectSelect"></select>
+      <input type="text" id="fileName" placeholder="ชื่อไฟล์ (เช่น บทที่1.pdf)">
+      <input type="text" id="fileUrl" placeholder="ลิงก์ไฟล์ (เช่น files/bio1.pdf)">
+      <button onclick="addFile()">เพิ่มไฟล์</button>
+    </div>
+
+    <div class="section">
+      <h2>💬 จัดการความคิดเห็น</h2>
+      <div id="commentManager"></div>
+    </div>
+  </div>
+
+  <script>
+    // ตรวจสอบสิทธิ์แอดมิน
+    if(localStorage.getItem("isAdmin") !== "true") {
+      alert("คุณต้องเข้าสู่ระบบก่อน!");
+      window.location.href = "login.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("isAdmin");
+    }
+
+    let fileData = JSON.parse(localStorage.getItem("fileData")) || {
+      math: [
+        { name: "สมการพื้นฐาน.pdf", url: "files/math-basic.pdf" },
+        { name: "โจทย์คณิต ม.6.docx", url: "files/math-exercise.docx" }
+      ],
+      physics: [
+        { name: "กลศาสตร์.pdf", url: "files/mechanics.pdf" },
+        { name: "ไฟฟ้าและแม่เหล็ก.zip", url: "files/electricity.zip" }
+      ],
+      chemistry: [
+        { name: "เคมีอินทรีย์.pdf", url: "files/organic.pdf" },
+        { name: "สรุปเคมี.docx", url: "files/chem-summary.docx" }
+      ]
+    };
+
+    let commentsData = JSON.parse(localStorage.getItem("comments")) || {};
+
+    function saveData() {
+      localStorage.setItem("fileData", JSON.stringify(fileData));
+      localStorage.setItem("comments", JSON.stringify(commentsData));
+    }
+
+    function loadSubjects() {
+      const select = document.getElementById("subjectSelect");
+      select.innerHTML = "";
+      Object.keys(fileData).forEach(sub => {
+        const opt = document.createElement("option");
+        opt.value = sub;
+        opt.textContent = sub;
+        select.appendChild(opt);
+      });
+    }
+
+    function addSubject() {
+      const subject = document.getElementById("newSubject").value.trim();
+      if (subject && !fileData[subject]) {
+        fileData[subject] = [];
+        saveData();
+        loadSubjects();
+        alert("เพิ่มวิชาเรียบร้อยแล้ว");
+        document.getElementById("newSubject").value = "";
+      } else alert("กรุณากรอกชื่อวิชาใหม่ที่ไม่ซ้ำกัน");
+    }
+
+    function addFile() {
+      const subject = document.getElementById("subjectSelect").value;
+      const fileName = document.getElementById("fileName").value.trim();
+      const fileUrl = document.getElementById("fileUrl").value.trim();
+      if(subject && fileName && fileUrl) {
+        fileData[subject].push({ name:fileName, url:fileUrl });
+        saveData();
+        alert("เพิ่มไฟล์เรียบร้อยแล้ว");
+        document.getElementById("fileName").value = "";
+        document.getElementById("fileUrl").value = "";
+      } else alert("กรุณากรอกข้อมูลให้ครบ");
+    }
+
+    function loadCommentsManager() {
+      const manager = document.getElementById("commentManager");
+      manager.innerHTML = "";
+      Object.keys(commentsData).forEach(key => {
+        const section = document.createElement("div");
+        section.innerHTML = `<h4>📂 ${key}</h4>`;
+        (commentsData[key] || []).forEach((text,i)=>{
+          const box = document.createElement("div");
+          box.className="comment-box";
+          let commentText = typeof text==="string"?text:text.text;
+          box.innerHTML = `<p>${commentText}</p>
+            <button onclick="deleteComment('${key}',${i})">❌ ลบ</button>
+            <button onclick="replyComment('${key}',${i})">↩️ ตอบกลับ</button>`;
+          if(typeof text!=="string" && text.reply){
+            const reply = document.createElement("div");
+            reply.className="reply";
+            reply.innerHTML=`<span class="admin-reply">แอดมิน:</span> ${text.reply}`;
+            box.appendChild(reply);
+          }
+          section.appendChild(box);
+        });
+        manager.appendChild(section);
+      });
+    }
+
+    function deleteComment(key,index){
+      commentsData[key].splice(index,1);
+      saveData();
+      loadCommentsManager();
+    }
+
+    function replyComment(key,index){
+      const reply = prompt("พิมพ์ข้อความตอบกลับ:");
+      if(reply){
+        if(typeof commentsData[key][index]==="string"){
+          commentsData[key][index]={text:commentsData[key][index], reply};
+        } else commentsData[key][index].reply=reply;
+        saveData();
+        loadCommentsManager();
+      }
+    }
+
+    // เริ่มต้น
+    loadSubjects();
+    loadCommentsManager();
+  </script>
+</body>
+</html>
