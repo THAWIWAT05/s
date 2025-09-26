@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <title>📘 ระบบดาวน์โหลดไฟล์การเรียน</title>
@@ -10,53 +11,68 @@
       background: #f4f6f9;
       color: #333;
     }
+
     header {
       background: linear-gradient(135deg, #6a11cb, #2575fc);
       padding: 20px;
-      text-align: center;
       color: #fff;
       font-size: 24px;
       font-weight: bold;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
+
+    header .title {
+      margin: 0;
+    }
+
     .container {
       max-width: 1100px;
       margin: auto;
       padding: 30px 20px;
     }
+
     .select-box {
       margin-bottom: 30px;
     }
-    select {
+
+    select,
+    input[type=text],
+    input[type=password] {
       width: 100%;
       padding: 12px;
       border-radius: 10px;
       border: 1px solid #ccc;
       font-size: 16px;
     }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 25px;
     }
+
     .card {
       background: #fff;
       border-radius: 15px;
       padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       transition: transform 0.2s ease;
+      position: relative;
     }
+
     .card:hover {
       transform: translateY(-5px);
     }
+
     .card h3 {
       margin: 0 0 15px;
       font-size: 18px;
       color: #2c3e50;
     }
+
     .btn {
       display: inline-block;
       padding: 10px 15px;
@@ -67,121 +83,249 @@
       text-align: center;
       font-size: 14px;
       font-weight: bold;
-      margin-bottom: 15px;
+      margin-right: 5px;
     }
+
     .btn:hover {
       opacity: 0.9;
     }
-    .comments {
-      margin-top: 10px;
-      border-top: 1px solid #eee;
-      padding-top: 10px;
+
+    .btn-delete {
+      background: #e74c3c;
     }
-    .comments h4 {
-      margin: 5px 0 10px;
-      font-size: 14px;
-      color: #555;
+
+    .btn-delete:hover {
+      background: #c0392b;
     }
-    .comment-list {
-      max-height: 120px;
-      overflow-y: auto;
-      margin-bottom: 10px;
+
+    /* ฟอร์มแอดมิน */
+    #adminPanel {
+      display: none;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 30px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-    .comment {
-      background: #f0f2f5;
-      padding: 6px 10px;
-      border-radius: 6px;
-      margin-bottom: 6px;
-      font-size: 14px;
+
+    #adminPanel h2 {
+      margin-top: 0;
     }
-    .comment-input {
-      display: flex;
-      gap: 10px;
-    }
-    .comment-input input {
-      flex: 1;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    .comment-input button {
-      padding: 8px 12px;
+
+    button {
+      padding: 10px 15px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       background: #27ae60;
       color: white;
       cursor: pointer;
+      font-size: 14px;
     }
-    .comment-input button:hover {
+
+    button:hover {
       background: #219150;
+    }
+
+    /* กล่องล็อกอินด้านบนขวา */
+    #loginBox {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #loginBox input {
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    #loginBox button {
+      background: #f39c12;
+    }
+
+    #loginBox button:hover {
+      background: #d98200;
     }
   </style>
 </head>
+
 <body>
-  <header>📘 ระบบดาวน์โหลดไฟล์การเรียน</header>
+  <header>
+    <div class="title">📘 ระบบดาวน์โหลดไฟล์การเรียน</div>
+    <div id="loginBox">
+      <input type="password" id="adminPassword" placeholder="รหัสแอดมิน">
+      <button onclick="login()">เข้าสู่ระบบ</button>
+    </div>
+  </header>
+
   <div class="container">
+    <!-- เลือกวิชา -->
     <div class="select-box">
       <label for="subject">เลือกวิชา:</label>
       <select id="subject">
         <option value="">-- กรุณาเลือกวิชา --</option>
-        <option value="math">📐 คณิตศาสตร์</option>
-        <option value="physics">🔬 ฟิสิกส์</option>
-        <option value="chemistry">⚗️ เคมี</option>
       </select>
     </div>
 
     <div id="files" class="grid"></div>
+
+    <!-- แอดมินเพิ่มข้อมูล -->
+    <div id="adminPanel">
+      <h2>🛠 จัดการไฟล์</h2>
+      <label>เลือกหมวดวิชา:</label>
+      <select id="adminSubject">
+        <option value="">-- เลือกหมวด --</option>
+      </select>
+      <br><br>
+      <label>เพิ่มหมวดใหม่:</label>
+      <input type="text" id="newSubject" placeholder="เช่น ชีววิทยา">
+      <button onclick="addSubject()">➕ เพิ่มหมวด</button>
+      <hr>
+      <label>ชื่อไฟล์:</label>
+      <input type="text" id="fileName" placeholder="เช่น บทที่1.pdf">
+      <label>ลิงก์ไฟล์:</label>
+      <input type="text" id="fileUrl" placeholder="เช่น files/lesson1.pdf">
+      <button onclick="addFile()">📂 เพิ่มไฟล์</button>
+    </div>
   </div>
 
   <script>
-    const fileData = {
-      math: [
-        { name: "สมการพื้นฐาน.pdf", url: "files/math-basic.pdf" },
-        { name: "โจทย์คณิต ม.6.docx", url: "files/math-exercise.docx" }
-      ],
-      physics: [
-        { name: "กลศาสตร์.pdf", url: "files/mechanics.pdf" },
-        { name: "ไฟฟ้าและแม่เหล็ก.zip", url: "files/electricity.zip" }
-      ],
-      chemistry: [
-        { name: "เคมีอินทรีย์.pdf", url: "files/organic.pdf" },
-        { name: "สรุปเคมี.docx", url: "files/chem-summary.docx" }
-      ]
+    // 📂 ข้อมูลไฟล์ + label วิชา
+    let subjects = {
+      math: {
+        label: "📐 คณิตศาสตร์",
+        files: [{
+            name: "สมการพื้นฐาน.pdf",
+            url: "files/math-basic.pdf"
+          },
+          {
+            name: "โจทย์คณิต ม.6.docx",
+            url: "files/math-exercise.docx"
+          }
+        ]
+      },
+      physics: {
+        label: "🔬 ฟิสิกส์",
+        files: [{
+            name: "กลศาสตร์.pdf",
+            url: "files/mechanics.pdf"
+          },
+          {
+            name: "ไฟฟ้าและแม่เหล็ก.zip",
+            url: "files/electricity.zip"
+          }
+        ]
+      },
+      chemistry: {
+        label: "⚗️ เคมี",
+        files: [{
+            name: "เคมีอินทรีย์.pdf",
+            url: "files/organic.pdf"
+          },
+          {
+            name: "สรุปเคมี.docx",
+            url: "files/chem-summary.docx"
+          }
+        ]
+      }
     };
-
+    let isAdmin = false; // สถานะว่าเป็นแอดมินหรือไม่
     const subjectSelect = document.getElementById("subject");
     const filesDiv = document.getElementById("files");
-
-    subjectSelect.addEventListener("change", () => {
-      const subject = subjectSelect.value;
+    const adminPanel = document.getElementById("adminPanel");
+    const adminSubject = document.getElementById("adminSubject");
+    // โหลดวิชาใน dropdown
+    function loadSubjects() {
+      subjectSelect.innerHTML = '<option value="">-- กรุณาเลือกวิชา --</option>';
+      adminSubject.innerHTML = '<option value="">-- เลือกหมวด --</option>';
+      Object.keys(subjects).forEach(key => {
+        subjectSelect.innerHTML += `<option value="${key}">${subjects[key].label}</option>`;
+        adminSubject.innerHTML += `<option value="${key}">${subjects[key].label}</option>`;
+      });
+    }
+    loadSubjects();
+    // ฟังก์ชันแสดงไฟล์
+    function showFiles(subjectKey) {
       filesDiv.innerHTML = "";
-
-      if (fileData[subject]) {
-        fileData[subject].forEach((file, index) => {
+      if (subjects[subjectKey]) {
+        subjects[subjectKey].files.forEach((file, index) => {
           const card = document.createElement("div");
           card.className = "card";
           card.innerHTML = `
             <h3>${file.name}</h3>
             <a class="btn" href="${file.url}" download>⬇ ดาวน์โหลด</a>
-           
-            </div>
+            ${isAdmin ? `<button class="btn btn-delete" onclick="deleteFile('${subjectKey}', ${index})">🗑 ลบ</button>` : ""}
           `;
           filesDiv.appendChild(card);
         });
       }
+    }
+    // เวลาเลือกวิชา
+    subjectSelect.addEventListener("change", () => {
+      showFiles(subjectSelect.value);
     });
-
-    function addComment(subject, index) {
-      const input = document.getElementById(`input-${subject}-${index}`);
-      const list = document.getElementById(`comments-${subject}-${index}`);
-      if (input.value.trim() !== "") {
-        const div = document.createElement("div");
-        div.className = "comment";
-        div.textContent = input.value;
-        list.appendChild(div);
-        input.value = "";
+    // ฟังก์ชันล็อกอิน
+    function login() {
+      const pass = document.getElementById("adminPassword").value;
+      if (pass === "admin123") { // 🔑 เปลี่ยนรหัสตรงนี้ได้
+        document.getElementById("loginBox").style.display = "none";
+        adminPanel.style.display = "block";
+        isAdmin = true;
+        // อัปเดตการแสดงผลไฟล์เพื่อให้เห็นปุ่มลบ
+        if (subjectSelect.value) {
+          showFiles(subjectSelect.value);
+        }
+      } else {
+        alert("รหัสไม่ถูกต้อง ❌");
+      }
+    }
+    // เพิ่มหมวดวิชา
+    function addSubject() {
+      const newSubLabel = document.getElementById("newSubject").value.trim();
+      if (!newSubLabel) return;
+      const key = newSubLabel.toLowerCase().replace(/\s+/g, "_");
+      if (!subjects[key]) {
+        subjects[key] = {
+          label: newSubLabel,
+          files: []
+        };
+        loadSubjects();
+        document.getElementById("newSubject").value = "";
+      } else {
+        alert("มีหมวดนี้แล้ว");
+      }
+    }
+    // เพิ่มไฟล์
+    function addFile() {
+      const subj = adminSubject.value;
+      const name = document.getElementById("fileName").value.trim();
+      const url = document.getElementById("fileUrl").value.trim();
+      if (!subj) {
+        alert("กรุณาเลือกหมวดวิชา");
+        return;
+      }
+      if (name && url) {
+        subjects[subj].files.push({
+          name,
+          url
+        });
+        if (subjectSelect.value === subj) {
+          showFiles(subj);
+        }
+        document.getElementById("fileName").value = "";
+        document.getElementById("fileUrl").value = "";
+      } else {
+        alert("กรอกข้อมูลให้ครบ!");
+      }
+    }
+    // ลบไฟล์
+    function deleteFile(subjectKey, index) {
+      if (confirm("คุณแน่ใจหรือไม่ที่จะลบไฟล์นี้?")) {
+        subjects[subjectKey].files.splice(index, 1);
+        showFiles(subjectKey);
       }
     }
   </script>
 </body>
+
 </html>
